@@ -1,10 +1,42 @@
 // Importar los módulos de express.js
 const express = require("express");
+// Importar Handlebars
+const exphbs = require("express-handlebars");
+// Importar body parser que nos permite acceder al cuerpo
+// de la petición HTTP
+const bodyParser = require("body-parser");
 // Importar todas las rutas disponibles
 const routes = require("./routes");
 
+// Crear la conexión con la base de datos
+const db = require("./config/db");
+
+// Importar los modelos
+require("./models/Proyecto");
+
+// Realizar la conexión a la base de datos
+// Sequelize se conecta mediante promises
+// https://developer.mozilla.org/es/docs/Web/JavaScript/Referencia/Objetos_globales/Promise
+db.sync()
+  .then(() => console.log("Conectado con el servidor de BD"))
+  .catch((error) => console.log(error));
+
 // Crear un servidor de express
 const app = express();
+
+// Indicar el template engine a utilizar (Handlebars)
+app.engine(
+  "hbs",
+  exphbs({
+    defaultLayout: "main",
+    extname: ".hbs",
+  })
+);
+
+app.set("view engine", "hbs");
+
+// Habilitar bodyParser para leer los datos enviados por POST
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Indicarle a express dónde están las rutas del servidor
 app.use("/", routes());
